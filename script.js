@@ -1,25 +1,57 @@
-function sendMessage(){
+const API_URL = "http://127.0.0.1:8000/chat";
 
-let input=document.getElementById("userInput");
+async function sendMessage() {
 
-let chat=document.getElementById("chatBox");
+    const input = document.getElementById("userInput");
+    const chat = document.getElementById("chatBox");
 
-if(input.value.trim()=="") return;
+    const message = input.value.trim();
 
-chat.innerHTML += `
-<div class="user-message">
-${input.value}
-</div>
-`;
+    if (message === "") return;
 
-chat.innerHTML += `
-<div class="ai-message">
-Thinking...
-</div>
-`;
+    chat.innerHTML += `
+        <div class="user-message">${message}</div>
+    `;
 
-input.value="";
+    input.value = "";
 
-chat.scrollTop=chat.scrollHeight;
+    chat.innerHTML += `
+        <div class="ai-message" id="loading">
+            🤖 Thinking...
+        </div>
+    `;
 
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+
+        const response = await fetch(API_URL, {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: message
+            })
+
+        });
+
+        const data = await response.json();
+
+        document.getElementById("loading").innerHTML =
+            "🤖 " + data.reply;
+
+    } catch (error) {
+
+        document.getElementById("loading").innerHTML =
+            "❌ Connection Error";
+
+        console.log(error);
+
+    }
+
+    chat.scrollTop = chat.scrollHeight;
 }
